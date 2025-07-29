@@ -5,7 +5,33 @@ return {
 	config = function()
 		local Snacks = require("snacks")
 		local opts = {
+			picker = {
+				enabled = true,
+				actions = {
+					trouble_open = function(...)
+						return require("trouble.sources.snacks").actions.trouble_open.action(...)
+					end,
+				},
+				sources = {
+					select = {
+						layout = {
+							preset = "telescope",
+						},
+					},
+				},
+				win = {
+					input = {
+						keys = {
+							["<a-t>"] = {
+								"trouble_open",
+								mode = { "n", "i" },
+							},
+						},
+					},
+				},
+			},
 			bigfile = { enabled = true },
+			explore = { enabled = true },
 			dashboard = { enabled = true },
 			image = { enabled = true },
 			notifier = {
@@ -133,6 +159,116 @@ return {
 				end,
 				desc = "Prev Reference",
 				mode = "n",
+			},
+			-- Snacks binds
+			{
+				"<leader>pf",
+				function()
+					Snacks.picker.git_files()
+				end,
+				desc = "Find Git Files",
+			},
+			{
+				"<leader>ps",
+				function()
+					Snacks.picker.grep()
+				end,
+				desc = "Grep",
+			},
+			--Find
+			{
+				"<leader>fb",
+				function()
+					Snacks.picker.buffers()
+				end,
+				desc = "Buffers",
+			},
+			{
+				"<leader>fp",
+				function()
+					Snacks.picker.projects()
+				end,
+				desc = "Projects",
+			},
+			--Search
+			{
+				"<leader>sd",
+				function()
+					Snacks.picker.diagnostics()
+				end,
+				desc = "Diagnostics",
+			},
+			{
+				"<leader>si",
+				function()
+					Snacks.picker.icons()
+				end,
+				desc = "Icons",
+			},
+			{
+				"<leader>sk",
+				function()
+					Snacks.picker.keymaps()
+				end,
+				desc = "Keymaps",
+			},
+			{
+				"<leader>sq",
+				function()
+					Snacks.picker.qflist()
+				end,
+				desc = "Quickfix List",
+			},
+			-- LSP
+			{
+				"gd",
+				function()
+					Snacks.picker.lsp_definitions()
+				end,
+				desc = "Goto Definition",
+			},
+			{
+				"gD",
+				function()
+					Snacks.picker.lsp_declarations()
+				end,
+				desc = "Goto Declaration",
+			},
+			{
+				"gr",
+				function()
+					Snacks.picker.lsp_references()
+				end,
+				nowait = true,
+				desc = "References",
+			},
+			{
+				"gI",
+				function()
+					Snacks.picker.lsp_implementations()
+				end,
+				desc = "Goto Implementation",
+			},
+			{
+				"gy",
+				function()
+					Snacks.picker.lsp_type_definitions()
+				end,
+				desc = "Goto T[y]pe Definition",
+			},
+			{
+				"<leader>ss",
+				function()
+					Snacks.picker.lsp_symbols()
+				end,
+				desc = "LSP Symbols",
+			},
+			{
+				"<leader>sS",
+				function()
+					Snacks.picker.lsp_workspace_symbols()
+				end,
+				desc = "LSP Workspace Symbols",
 			},
 		}
 
