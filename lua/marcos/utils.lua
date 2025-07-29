@@ -47,15 +47,22 @@ end
 --Insert, check or uncheck a to-do in markdown files
 function M.toggle_markdown_todo()
 	local line = vim.api.nvim_get_current_line() or ""
-	if line:match("^%s*%- %[%s*%]") then
-		local new_line = line:gsub("^(%s*%-) %[%s*%]", "%1 [x]", 1)
-		vim.api.nvim_set_current_line(new_line)
-	elseif line:match("^%s*%- %[%s*x%s*%]") then
-		local new_line = line:gsub("^(%s*%-) %[%s*x%s*%]", "%1 [ ]", 1)
-		vim.api.nvim_set_current_line(new_line)
-	else
-		vim.api.nvim_set_current_line("- [ ] " .. line)
+	local states = { " ", "x", ">", "/" }
+	local new_line, count = line:gsub("(%- %[)(.)(%])", function(prefix, state, suffix)
+		local current_index = nil
+		for i, s in ipairs(states) do
+			if s == state then
+				current_index = i
+				break
+			end
+		end
+		local new_index = (current_index % #states) + 1
+		return prefix .. states[new_index] .. suffix
+	end, 1)
+	if count == 0 then
+		new_line = "- [ ] " .. line
 	end
+	vim.api.nvim_set_current_line(new_line)
 end
 
 return M
