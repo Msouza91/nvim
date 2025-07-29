@@ -92,6 +92,11 @@ return {
 		-- Key mappings
 		local mappings = {
 			{
+				"<leader>oc",
+				"<cmd>Obsidian check<cr>",
+				{ desc = "Obsidian Todo" },
+			},
+			{
 				"<leader>os",
 				"<cmd>Obsidian search<cr>",
 				{ desc = "Obsidian Search" },
