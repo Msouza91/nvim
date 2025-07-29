@@ -7,6 +7,7 @@ return {
 		local opts = {
 			bigfile = { enabled = true },
 			dashboard = { enabled = true },
+			image = { enabled = true },
 			notifier = {
 				enabled = true,
 				timeout = 3000,
