@@ -1,5 +1,8 @@
 return {
 	"folke/snacks.nvim",
+	dependeancies = {
+		"nvim-tree/nvim-web-devicons",
+	},
 	priority = 1000,
 	lazy = false,
 	config = function()
