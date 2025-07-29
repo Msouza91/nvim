@@ -18,22 +18,14 @@ keymap("v", "K", ":m '<-2<CR>gv=gv")
 -- Better navigation
 
 keymap("n", "J", "mzJ`z")
-keymap(
-	"n",
-	"<C-d>",
-	"<cmd>lua vim.cmd('normal! <C-d>'); require('mini.animate').execute_after('scroll', 'normal! zz')<cr>"
-)
 keymap("n", "<C-h>", "<C-w><C-h>", { desc = "Move focus to the left window" })
 keymap("n", "<C-l>", "<C-w><C-l>", { desc = "Move focus to the right window" })
 keymap("n", "<C-j>", "<C-w><C-j>", { desc = "Move focus to the lower window" })
 keymap("n", "<C-k>", "<C-w><C-k>", { desc = "Move focus to the upper window" })
-keymap(
-	"n",
-	"<C-u>",
-	"<cmd>lua vim.cmd('normal! <C-u>'); require('mini.animate').execute_after('scroll', 'normal! zz')<cr>"
-)
-keymap("n", "n", "<cmd>lua vim.cmd('normal! n'); require('mini.animate').execute_after('scroll', 'normal! zvzz')<cr>")
-keymap("n", "N", "<cmd>lua vim.cmd('normal! N'); require('mini.animate').execute_after('scroll', 'normal! zvzz')<cr>")
+keymap("n", "<C-d>", "<cmd>normal! <C-d>zz<CR>")
+keymap("n", "<C-u>", "<cmd>normal! <C-u>zz<CR>")
+keymap("n", "n", "<cmd>normal! nzz<CR>")
+keymap("n", "N", "<cmd>normal! Nzz<CR>")
 
 -- Tab management.
 keymap("n", "<leader>tc", "<cmd>tabclose<cr>", { desc = "Close tab page" })

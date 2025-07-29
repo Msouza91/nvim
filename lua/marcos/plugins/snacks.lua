@@ -5,6 +5,8 @@ return {
 	config = function()
 		local Snacks = require("snacks")
 		local opts = {
+			animate = { enabled = true },
+			scroll = { enabled = true },
 			picker = {
 				enabled = true,
 				actions = {
