@@ -1,35 +1,6 @@
 ---------- UTILS ----------
 local M = {}
 
----@class TermConfig
----@field direction "new" | "vnew" | "tabnew"
----@field cmd string
----@field new? boolean
----@field focus boolean
----@param opts TermConfig
-
-function M.term(opts, ...)
-	local terminal = vim.iter(vim.fn.getwininfo()):find(function(v)
-		return v.terminal == 1
-	end)
-	if terminal and not opts.new then
-		vim.api.nvim_buf_call(terminal.bufnr, function()
-			vim.cmd("$")
-		end)
-		return vim.api.nvim_chan_send(vim.b[terminal.bufnr].terminal_job_id, string.format(opts.cmd .. "\n", ...))
-	end
-
-	local current_win = vim.api.nvim_get_current_win()
-	local size = math.floor(vim.api.nvim_win_get_height(0) / 3)
-	vim.cmd[opts.direction]({ range = opts.direction == "new" and { size } or { nil } })
-	local term = vim.fn.termopen(vim.env.SHELL) --[[@as number]]
-	if not opts.focus then
-		vim.cmd.stopinsert()
-		vim.api.nvim_set_current_win(current_win)
-	end
-	vim.api.nvim_chan_send(term, string.format(opts.cmd .. "\n", ...))
-end
-
 local runner = {
 	python = "python3 $file",
 	c = "gcc $file -o $output && ./$output; rm $output",
@@ -73,14 +44,17 @@ function M.save_and_exec()
 	end
 end
 
-function M.toggleTerm()
-	local terminal = vim.iter(vim.fn.getwininfo()):find(function(v)
-		return v.terminal == 1
-	end)
-	if terminal then
-		vim.api.nvim_win_close(terminal.winid, true)
+--Insert, check or uncheck a to-do in markdown files
+function M.toggle_markdown_todo()
+	local line = vim.api.nvim_get_current_line() or ""
+	if line:match("^%s*%- %[%s*%]") then
+		local new_line = line:gsub("^(%s*%-) %[%s*%]", "%1 [x]", 1)
+		vim.api.nvim_set_current_line(new_line)
+	elseif line:match("^%s*%- %[%s*x%s*%]") then
+		local new_line = line:gsub("^(%s*%-) %[%s*x%s*%]", "%1 [ ]", 1)
+		vim.api.nvim_set_current_line(new_line)
 	else
-		M.term({ direction = "new", focus = true, cmd = "" })
+		vim.api.nvim_set_current_line("- [ ] " .. line)
 	end
 end
 

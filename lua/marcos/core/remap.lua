@@ -98,6 +98,11 @@ keymap("n", "<leader>l", function()
 	vim.cmd("Lazy")
 end)
 
+-- Markdown todo toggle
+keymap("n", "<leader>mt", function()
+	utils.toggle_markdown_todo()
+end, { desc = "Toggle markdown todo" })
+
 -- Lsp Formatting
 keymap("n", "<leader>f", vim.lsp.buf.format)
 
