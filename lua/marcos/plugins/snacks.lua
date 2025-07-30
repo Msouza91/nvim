@@ -1,12 +1,14 @@
 return {
 	"folke/snacks.nvim",
-	dependeancies = {
+	dependencies = {
 		"nvim-tree/nvim-web-devicons",
 	},
 	priority = 1000,
 	lazy = false,
 	config = function()
 		local Snacks = require("snacks")
+		local snacks_opts = require("marcos.extra.snacks-opts")
+		
 		local opts = {
 			animate = { enabled = true },
 			scroll = { enabled = true },
@@ -37,7 +39,7 @@ return {
 			},
 			bigfile = { enabled = true },
 			explore = { enabled = true },
-			dashboard = { enabled = true },
+			dashboard = snacks_opts.dashboard(),
 			image = { enabled = true },
 			notifier = {
 				enabled = true,
@@ -52,6 +54,7 @@ return {
 				},
 			},
 		}
+		
 		Snacks.setup(opts)
 
 		-- Key mappings
