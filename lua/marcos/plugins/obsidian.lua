@@ -91,61 +91,21 @@ return {
 
 		-- Key mappings
 		local mappings = {
-			{
-				"<leader>oc",
-				"<cmd>Obsidian check<cr>",
-				{ desc = "Obsidian Todo" },
-			},
-			{
-				"<leader>os",
-				"<cmd>Obsidian search<cr>",
-				{ desc = "Obsidian Search" },
-			},
-			{
-				"<leader>ost",
-				"<cmd>Obsidian tags<cr>",
-				{ desc = "Obsidian Search Tag Instances" },
-			},
-			{
-				"<leader>oit",
-				"<cmd>Obsidian template<cr>",
-				{ desc = "Obsidian insert template" },
-			},
-			{
-				"<leader>ot",
-				"<cmd>Obsidian today<cr>",
-				{ desc = "Obsidian Today Daily Note" },
-			},
-			{
-				"<leader>oT",
-				"<cmd>Obsidian tomorrow<cr>",
-				{ desc = "Obsidian Tomorrow Daily Note" },
-			},
-			{
-				"<leader>oy",
-				"<cmd>Obsidian yesterday<cr>",
-				{ desc = "Obsidian Yesterday Daily Note" },
-			},
-			{
-				"<leader>on",
-				"<cmd>Obsidian new<cr>",
-				{ desc = "Obsidian New Note" },
-			},
-			{
-				"<leader>oN",
-				"<cmd>Obsidian new_from_template<cr>",
-				{ desc = "Obsidian New Note From Template" },
-			},
-			{
-				"<leader>ob",
-				"<cmd>Obsidian backlinks<cr>",
-				{ desc = "Obsidian Backlinks on Picker" },
-			},
+			{ "<leader>oc", "<cmd>Obsidian check<cr>", "Obsidian Todo" },
+			{ "<leader>os", "<cmd>Obsidian search<cr>", "Obsidian Search" },
+			{ "<leader>ost", "<cmd>Obsidian tags<cr>", "Obsidian Search Tag Instances" },
+			{ "<leader>oit", "<cmd>Obsidian template<cr>", "Obsidian insert template" },
+			{ "<leader>ot", "<cmd>Obsidian today<cr>", "Obsidian Today Daily Note" },
+			{ "<leader>oT", "<cmd>Obsidian tomorrow<cr>", "Obsidian Tomorrow Daily Note" },
+			{ "<leader>oy", "<cmd>Obsidian yesterday<cr>", "Obsidian Yesterday Daily Note" },
+			{ "<leader>on", "<cmd>Obsidian new<cr>", "Obsidian New Note" },
+			{ "<leader>oN", "<cmd>Obsidian new_from_template<cr>", "Obsidian New Note From Template" },
+			{ "<leader>ob", "<cmd>Obsidian backlinks<cr>", "Obsidian Backlinks on Picker" },
 		}
 
 		for _, map in ipairs(mappings) do
 			local mode = map.mode or "n"
-			vim.keymap.set(mode, map[1], map[2], { desc = map[3].desc, noremap = true, silent = true })
+			vim.keymap.set(mode, map[1], map[2], { desc = map[3], noremap = true, silent = true })
 		end
 	end,
 }

@@ -1,4 +1,5 @@
 local M = {}
+
 function M.opts()
 	local opts = {
 		enabled = true, -- enable dashboard
@@ -19,33 +20,17 @@ function M.opts()
 			keys = {
 				{ icon = " ", key = "f", desc = "Find File", action = ":lua Snacks.dashboard.pick('files')" },
 				{ icon = " ", key = "n", desc = "New File", action = ":ene | startinsert" },
-				{
-					icon = " ",
-					key = "g",
-					desc = "Find Text",
-					action = ":lua Snacks.dashboard.pick('live_grep')",
-				},
-				{
-					icon = " ",
-					key = "r",
-					desc = "Recent Files",
-					action = ":lua Snacks.dashboard.pick('oldfiles')",
-				},
+				{ icon = " ", key = "g", desc = "Find Text", action = ":lua Snacks.dashboard.pick('live_grep')" },
+				{ icon = " ", key = "r", desc = "Recent Files", action = ":lua Snacks.dashboard.pick('oldfiles')" },
 				{
 					icon = " ",
 					key = "c",
 					desc = "Config",
 					action = ":lua Snacks.dashboard.pick('files', {cwd = vim.fn.stdpath('config')})",
 				},
-				{ icon = " ", key = "s", desc = "Restore Session", section = "session" },
-				{
-					icon = "󰒲 ",
-					key = "L",
-					desc = "Lazy",
-					action = ":Lazy",
-					enabled = package.loaded.lazy ~= nil,
-				},
-				{ icon = " ", key = "q", desc = "Quit", action = ":qa" },
+				{ icon = " ", key = "s", desc = "Restore Session", section = "session" },
+				{ icon = "󰒲 ", key = "L", desc = "Lazy", action = ":Lazy", enabled = package.loaded.lazy ~= nil },
+				{ icon = " ", key = "q", desc = "Quit", action = ":qa" },
 			},
 			-- Used by the `header` section
 			header = [[
@@ -63,7 +48,7 @@ function M.opts()
 		-- item field formatters
 		formats = {
 			icon = function(item)
-				if item.file and item.icon == "file" or item.icon == "directory" then
+				if item.file and (item.icon == "file" or item.icon == "directory") then
 					return M.icon(item.file, item.icon)
 				end
 				return { item.icon, width = 2, hl = "icon" }
@@ -93,5 +78,5 @@ function M.opts()
 	}
 	return opts
 end
-return M
 
+return M
