@@ -8,35 +8,11 @@ return {
 	config = function()
 		local Snacks = require("snacks")
 		local snacks_opts = require("marcos.extra.snacks-opts")
-		
+
 		local opts = {
 			animate = { enabled = true },
 			scroll = { enabled = true },
-			picker = {
-				enabled = true,
-				actions = {
-					trouble_open = function(...)
-						return require("trouble.sources.snacks").actions.trouble_open.action(...)
-					end,
-				},
-				sources = {
-					select = {
-						layout = {
-							preset = "telescope",
-						},
-					},
-				},
-				win = {
-					input = {
-						keys = {
-							["<a-t>"] = {
-								"trouble_open",
-								mode = { "n", "i" },
-							},
-						},
-					},
-				},
-			},
+			picker = snacks_opts.picker(),
 			bigfile = { enabled = true },
 			explore = { enabled = true },
 			dashboard = snacks_opts.dashboard(),
@@ -54,7 +30,7 @@ return {
 				},
 			},
 		}
-		
+
 		Snacks.setup(opts)
 
 		-- Key mappings
