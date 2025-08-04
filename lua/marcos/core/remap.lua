@@ -68,17 +68,17 @@ keymap("v", "<", "<gv")
 keymap("v", ">", ">gv")
 
 -- run current file
-keymap("n", "<leader>r", utils.save_and_exec, { desc = "Save and execute file" })
+keymap("n", "<leader>rr", utils.save_and_exec, { desc = "Save and execute file" })
 
 -- next greatest remap ever : asbjornHaland
 keymap({ "n", "v" }, "<leader>y", [["+y]])
 keymap("n", "<leader>Y", [["+Y]])
 
--- delete to black hole register
-keymap({ "n", "v" }, "<leader>d", [["_d]])
+keymap({ "n", "v" }, "<leader>d", [["_d]], { desc = "Delete without yanking" })
 
--- replace word under cursor
-keymap("n", "<leader>s", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]])
+keymap("n", "<leader>sR", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]], { desc = "Replace under the cursor" })
+
+-- keymap("n", "<leader>za", utils.simple_fold, { desc = "Fold function" })
 
 -- grant execute permission
 keymap("n", "<leader>xe", "<cmd>!chmod +x %<CR>", { silent = true })

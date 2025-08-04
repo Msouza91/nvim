@@ -190,6 +190,13 @@ return {
 				desc = "Icons",
 			},
 			{
+				"<leader>sh",
+				function()
+					Snacks.picker.help()
+				end,
+				desc = "Help",
+			},
+			{
 				"<leader>sk",
 				function()
 					Snacks.picker.keymaps()

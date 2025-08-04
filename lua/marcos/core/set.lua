@@ -14,6 +14,11 @@ opt.inccommand = "split"
 opt.confirm = true
 glb.have_nerd_font = false
 
+-- Folds
+opt.foldmethod = "expr"
+opt.foldlevel = 99 -- Open all folds by default
+opt.foldexpr = "nvim_treesitter#foldexpr()"
+
 -- No need to see the mode since I'm using statusline
 opt.showmode = false
 
