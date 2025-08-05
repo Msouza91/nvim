@@ -12,7 +12,7 @@ opt.listchars = { tab = "» ", trail = "·", nbsp = "␣" }
 
 opt.inccommand = "split"
 opt.confirm = true
-glb.have_nerd_font = false
+glb.have_nerd_font = true
 
 -- Folds
 opt.foldmethod = "expr"
