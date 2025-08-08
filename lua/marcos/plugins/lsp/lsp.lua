@@ -168,7 +168,7 @@ return {
 		vim.list_extend(ensure_installed, {
 			"stylua",
 			"tflint",
-			"tfsec",
+			"trivy",
 			"gofumpt",
 			"revive",
 			"harper-ls",
