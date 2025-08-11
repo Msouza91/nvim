@@ -10,7 +10,8 @@ return {
 		lint.linters_by_ft = {
 			javascript = { "eslint_d" },
 			terraform = { "trivy", "tflint" },
-			go = { "revive" },
+			dockerfile = { "trivy", "hadolint" },
+			go = { "revive", "trivy" },
 		}
 
 		local lint_augroup = vim.api.nvim_create_augroup("lint", { clear = true })
