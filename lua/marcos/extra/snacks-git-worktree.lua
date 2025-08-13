@@ -94,6 +94,68 @@ local function get_git_log(path, count)
 	return lines
 end
 
+-- Force refresh all buffers and editor state
+local function force_refresh_editor()
+	vim.schedule(function()
+		-- 1. Check for file changes and reload buffers
+		vim.cmd("silent! checktime")
+
+		-- 2. Refresh all listed buffers
+		for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+			if vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].buflisted then
+				local bufname = vim.api.nvim_buf_get_name(buf)
+				if bufname ~= "" and vim.fn.filereadable(bufname) == 1 then
+					-- Reload the buffer if file exists
+					vim.api.nvim_buf_call(buf, function()
+						vim.cmd("silent! e")
+					end)
+				elseif bufname ~= "" and vim.fn.filereadable(bufname) == 0 then
+					-- File doesn't exist in new worktree, close buffer
+					pcall(vim.api.nvim_buf_delete, buf, { force = false })
+				end
+			end
+		end
+
+		-- 3. Update working directory and refresh file explorers
+		local cwd = vim.fn.getcwd()
+
+		-- Refresh neo-tree if available
+		local neotree_ok, neotree = pcall(require, "neo-tree.command")
+		if neotree_ok and neotree then
+			pcall(neotree.execute, { action = "refresh", source = "filesystem" })
+		end
+
+		-- Refresh oil.nvim if available
+		local oil_ok, oil = pcall(require, "oil")
+		if oil_ok and oil then
+			if type(oil.refresh) == "function" then
+				pcall(oil.refresh)
+			end
+		end
+
+		-- 4. Trigger redraw and update statusline
+		vim.cmd("redraw!")
+		vim.cmd("doautocmd DirChanged")
+
+		-- 5. Open file explorer if no files are open
+		local has_files = false
+		for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+			if vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].buflisted then
+				local bufname = vim.api.nvim_buf_get_name(buf)
+				if bufname ~= "" and not bufname:match("^oil://") then
+					has_files = true
+					break
+				end
+			end
+		end
+
+		if not has_files then
+			-- Open current directory if no files are loaded
+			vim.cmd("e .")
+		end
+	end)
+end
+
 -- Main worktrees picker
 function M.git_worktrees()
 	local items = get_worktrees()
@@ -166,91 +228,74 @@ function M.git_worktrees()
 		sort = {
 			fields = { "current:desc", "branch" },
 		},
+		actions = {
+			delete = function(picker, item)
+				if not item then
+					return
+				end
+
+				local branch_name = item.branch or vim.fn.fnamemodify(item.path, ":t")
+				local choice = vim.fn.input("Delete worktree '" .. branch_name .. "'? [y/N]: ")
+
+				if choice:lower() == "y" then
+					picker:close()
+					vim.notify("Deleting worktree: " .. branch_name)
+
+					local success = pcall(git_worktree.delete_worktree, item.branch)
+					if success then
+						vim.notify("Successfully deleted worktree: " .. branch_name, vim.log.levels.INFO)
+					else
+						vim.notify("Failed to delete worktree: " .. branch_name, vim.log.levels.ERROR)
+					end
+				end
+			end,
+			force_delete = function(picker)
+				local item = picker.list:get()
+				if not item then
+					return
+				end
+
+				local branch_name = item.branch or vim.fn.fnamemodify(item.path, ":t")
+				local choice = vim.fn.input("Force delete worktree '" .. branch_name .. "'? [y/N]: ")
+
+				if choice:lower() == "y" then
+					picker:close()
+					vim.notify("Force deleting worktree: " .. branch_name)
+
+					-- Force delete requires using git command directly since the plugin doesn't support force flag
+					local git_cmd = string.format("git worktree remove --force %s", vim.fn.shellescape(item.path))
+					local result = vim.fn.system(git_cmd)
+
+					if vim.v.shell_error == 0 then
+						vim.notify("Successfully force deleted worktree: " .. branch_name, vim.log.levels.INFO)
+						-- Trigger the delete hook manually since we bypassed the plugin
+						local Worktree = require("git-worktree")
+						Worktree.on_tree_change(Worktree.Operations.Delete, { path = item.path })
+					else
+						vim.notify(
+							"Failed to force delete worktree: " .. branch_name .. " - " .. result,
+							vim.log.levels.ERROR
+						)
+					end
+				end
+			end,
+		},
 		win = {
 			input = {
 				keys = {
 					["<c-d>"] = {
-						function(picker)
-							local item = picker:current()
-							if not item then
-								return
-							end
-
-							local branch_name = item.branch or vim.fn.fnamemodify(item.path, ":t")
-							local choice = vim.fn.input("Delete worktree '" .. branch_name .. "'? [y/N]: ")
-
-							if choice:lower() == "y" then
-								picker:close()
-								vim.notify("Deleting worktree: " .. branch_name)
-								git_worktree.delete_worktree(item.path, false, {
-									on_success = function()
-										vim.notify(
-											"Successfully deleted worktree: " .. branch_name,
-											vim.log.levels.INFO
-										)
-									end,
-									on_failure = function()
-										vim.notify("Failed to delete worktree: " .. branch_name, vim.log.levels.ERROR)
-									end,
-								})
-							end
-						end,
-						mode = { "n", "i" },
-						desc = "Delete worktree",
+						"delete",
+						mode = { "i" },
 					},
 					["<c-f>"] = {
-						function(picker)
-							local item = picker:current()
-							if not item then
-								return
-							end
-
-							local branch_name = item.branch or vim.fn.fnamemodify(item.path, ":t")
-							local choice = vim.fn.input("Force delete worktree '" .. branch_name .. "'? [y/N]: ")
-
-							if choice:lower() == "y" then
-								picker:close()
-								vim.notify("Force deleting worktree: " .. branch_name)
-								git_worktree.delete_worktree(item.path, true, {
-									on_success = function()
-										vim.notify(
-											"Successfully force deleted worktree: " .. branch_name,
-											vim.log.levels.INFO
-										)
-									end,
-									on_failure = function()
-										vim.notify(
-											"Failed to force delete worktree: " .. branch_name,
-											vim.log.levels.ERROR
-										)
-									end,
-								})
-							end
-						end,
-						mode = { "n", "i" },
-						desc = "Force delete worktree",
+						"force_delete",
+						mode = { "i" },
 					},
 				},
 			},
 			list = {
 				keys = {
-					["dd"] = {
-						function(picker)
-							local item = picker:current()
-							if not item then
-								return
-							end
-
-							local branch_name = item.branch or vim.fn.fnamemodify(item.path, ":t")
-							local choice = vim.fn.input("Delete worktree '" .. branch_name .. "'? [y/N]: ")
-
-							if choice:lower() == "y" then
-								picker:close()
-								git_worktree.delete_worktree(item.path)
-							end
-						end,
-						desc = "Delete worktree",
-					},
+					["dd"] = "delete",
 				},
 			},
 		},
@@ -323,7 +368,7 @@ function M.create_git_worktree()
 		win = {
 			input = {
 				keys = {
-					["<c-n>"] = {
+					["<c-b>"] = {
 						function(picker)
 							picker:close()
 							vim.schedule(function()
@@ -375,7 +420,7 @@ end
 -- Hook into git-worktree events
 local Worktree = require("git-worktree")
 
--- Refresh file explorer on worktree change
+-- Enhanced worktree change handler
 Worktree.on_tree_change(function(op, metadata)
 	if op == Worktree.Operations.Switch then
 		vim.notify(
@@ -386,39 +431,19 @@ Worktree.on_tree_change(function(op, metadata)
 			vim.log.levels.INFO
 		)
 
-		-- Refresh any open file explorers
-		vim.schedule(function()
-			-- Refresh neo-tree if it's available and loaded
-			local neotree_ok, neotree = pcall(require, "neo-tree.command")
-			if neotree_ok and neotree then
-				pcall(neotree.execute, { action = "refresh" })
-			end
-
-			-- Refresh oil.nvim if it's available and loaded
-			local oil_ok, oil = pcall(require, "oil")
-			if oil_ok and oil then
-				-- Check if oil has refresh function, otherwise try setup
-				if type(oil.refresh) == "function" then
-					pcall(oil.refresh)
-				elseif type(oil.setup) == "function" then
-					-- Oil might refresh automatically on cwd change
-					-- Just trigger a redraw
-					vim.cmd("redraw")
-				end
-			end
-
-			-- Alternative: just refresh all windows/buffers
-			vim.cmd("checktime")
-		end)
+		-- Force refresh editor state after worktree switch
+		force_refresh_editor()
 	elseif op == Worktree.Operations.Create then
 		vim.notify(
 			"Created worktree: " .. metadata.branch .. " at " .. vim.fn.fnamemodify(metadata.path, ":t"),
 			vim.log.levels.INFO
 		)
+
+		-- Also refresh after create and switch
+		force_refresh_editor()
 	elseif op == Worktree.Operations.Delete then
 		vim.notify("Deleted worktree at " .. vim.fn.fnamemodify(metadata.path, ":t"), vim.log.levels.INFO)
 	end
 end)
 
 return M
-
