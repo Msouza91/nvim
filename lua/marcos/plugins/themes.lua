@@ -4,6 +4,8 @@ return {
 	lazy = false,
 	config = function()
 		local opts = {
+			transparency = true,
+			terminal_colors = true,
 			styles = {
 				comments = "italic",
 				functions = "italic,bold",
@@ -11,7 +13,7 @@ return {
 		}
 		require("nightfox").setup(opts)
 		vim.cmd("colorscheme terafox")
-		--vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
-		--vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
+		vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
+		-- vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
 	end,
 }
