@@ -1,18 +1,9 @@
 return {
-	"EdenEast/nightfox.nvim",
-	name = "nightfox",
+	"p00f/alabaster.nvim",
+	name = "alabaster",
 	lazy = false,
 	config = function()
-		local opts = {
-			transparency = true,
-			terminal_colors = true,
-			styles = {
-				comments = "italic",
-				functions = "italic,bold",
-			},
-		}
-		require("nightfox").setup(opts)
-		vim.cmd("colorscheme terafox")
+		vim.cmd("colorscheme alabaster")
 		vim.api.nvim_set_hl(0, "Normal", { bg = "none" })
 		-- vim.api.nvim_set_hl(0, "NormalFloat", { bg = "none" })
 	end,

@@ -5,6 +5,7 @@ local glb = vim.g
 vim.loader.enable()
 
 opt.guicursor = ""
+opt.termguicolors = true
 opt.nu = true
 opt.relativenumber = true
 opt.list = true
