@@ -3,6 +3,7 @@
 local utils = require("marcos.utils")
 
 local keymap = vim.keymap.set
+local k = vim.keycode
 
 -- Set leader
 
@@ -25,6 +26,23 @@ keymap("n", "N", "<cmd>normal! Nzz<CR>")
 keymap("n", "[b", "<cmd>bprevious<CR>", { desc = "Previous buffer" })
 keymap("n", "]b", "<cmd>bnext<CR>", { desc = "Next buffer" })
 
+-- Toggle hlsearch if it's on, otherwise just do "enter"
+keymap("n", "<CR>", function()
+	---@diagnostic disable-next-line: undefined-field
+	if vim.v.hlsearch == 1 then
+		vim.cmd.nohl()
+		return ""
+	else
+		return k("<CR>")
+	end
+end, { expr = true })
+
+-- These mappings control the size of splits (height/width)
+keymap("n", "<M-,>", "<c-w>5<")
+keymap("n", "<M-.>", "<c-w>5>")
+keymap("n", "<M-t>", "<C-W>+")
+keymap("n", "<M-s>", "<C-W>-")
+
 -- Tab management.
 keymap("n", "<leader>tc", "<cmd>tabclose<cr>", { desc = "Close tab page" })
 keymap("n", "<leader>tn", "<cmd>tab split<cr>", { desc = "New tab page" })
@@ -32,20 +50,20 @@ keymap("n", "<leader>to", "<cmd>tabonly<cr>", { desc = "Close other tab pages" }
 
 -- Error navigation
 -- Go to previous/next error
-vim.keymap.set("n", "[e", function()
+keymap("n", "[e", function()
 	vim.diagnostic.jump({ count = 1, severity = vim.diagnostic.severity.ERROR })
 end, { desc = "Previous Error" })
 
-vim.keymap.set("n", "]e", function()
+keymap("n", "]e", function()
 	vim.diagnostic.jump({ count = -1, severity = vim.diagnostic.severity.ERROR })
 end, { desc = "Next Error" })
 
 -- Go to previous/next warning
-vim.keymap.set("n", "[w", function()
+keymap("n", "[w", function()
 	vim.diagnostic.jump({ count = 1, severity = vim.diagnostic.severity.WARN })
 end, { desc = "Previous Warning" })
 
-vim.keymap.set("n", "]w", function()
+keymap("n", "]w", function()
 	vim.diagnostic.jump({ count = -1, severity = vim.diagnostic.severity.WARN })
 end, { desc = "Next Warning" })
 
@@ -104,3 +122,25 @@ keymap("n", "<C-j>", "<cmd>cnext<CR>zz")
 keymap("n", "<C-k>", "<cmd>cprev<CR>zz")
 keymap("n", "<leader>j", "<cmd>lnext<CR>zz")
 keymap("n", "<leader>k", "<cmd>lprev<CR>zz")
+
+-- Cute command for inputting date and time on journal entries
+keymap("n", "<leader>dt", function()
+	local day = tonumber(os.date("%d"))
+
+	-- Determine ordinal suffix
+	local suffix
+	if day % 10 == 1 and day ~= 11 then
+		suffix = "st"
+	elseif day % 10 == 2 and day ~= 12 then
+		suffix = "nd"
+	elseif day % 10 == 3 and day ~= 13 then
+		suffix = "rd"
+	else
+		suffix = "th"
+	end
+
+	-- Build formatted date string
+	local datetime = os.date("%a %b ") .. day .. suffix .. os.date(" %Y %H:%M:%Ss")
+
+	vim.api.nvim_put({ datetime }, "c", true, true)
+end, { desc = "Insert current date and time" })
